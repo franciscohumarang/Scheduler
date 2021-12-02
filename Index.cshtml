@@ -1,0 +1,768 @@
+﻿
+@model Scheduler.FrontEnd.Web.Models.SchedulerViewModel
+
+
+<link href="@Url.Content("~/css/scheduler.css")" rel="stylesheet" />
+
+<div class="content-scheduler">
+
+
+    <input type="hidden" id="selectedMode" />
+
+
+
+    <div class="header-container">
+        <div class="row-header">
+            <div class="cell1">
+                <span id="lblTimeline">@L("TIMELINE") </span> <label class="switch-toggle">
+                    <input type="checkbox" checked id="timeview-toggle">
+                    <span class="slider-switch round"></span>
+                </label>  <span id="lblCalendar">@L("CALENDAR")</span>
+
+            </div>
+            <div class="cell2">
+                <span id="lblSteps">@L("STEPS")</span> <label class="switch-toggle">
+                    <input type="checkbox" checked id="data-toggle">
+                    <span class="slider-switch round"></span>
+                </label> <span id="lblJobs">@L("JOBS")</span>
+            </div>
+        </div>
+        <div class="view-options">
+            <div style="padding-left:6px;padding-right:50px"><div id="dx-Assets"></div></div>
+            <span id="lblGroupBy"> </span>
+            <div id="groupingDropdown" style="text-align:left"></div>
+        </div>
+        <div class="add-search">
+            <div style="padding-left:6px">
+
+                <button id="btn-schedule-job" type="button" class="btn arc-btn">
+                    <i class="fa fa-calendar-plus arc-fa-2x"></i>
+                </button>
+
+
+            </div>
+            <div style="padding-left:6px">
+
+                <button id="btn-show-bundle" type="button" class="btn arc-btn">
+                    <i class="far fa-object-group arc-fa-2x"></i> @* <i class="fa fa-list arc-fa-2x"></i>*@
+                </button> 
+
+
+
+            </div>
+
+            <div style="padding-left:6px">
+                <button id="btn-refresh" type="button" class="btn arc-btn">
+                    <i class="fa fa-redo arc-fa-2x"></i>
+                </button>
+
+            </div>
+
+            <div style="padding-left:6px">
+                <button id="btn-time" type="button" class="btn arc-btn">
+                    <i class="fa fa-cog arc-fa-2x"></i>
+                </button>
+
+            </div>
+
+            <div style="padding-left:6px">
+                <div id="txt-search-schedule" style="min-width: 80px"></div>
+            </div>
+
+
+
+            <div class="legend-container">
+                <div style="width:116px"><span class="legend-not-started"></span> <span style="color:#37467b;vertical-align:super">@L("NOT_STARTED")</span></div>
+                <div style="width:87px"><span class="legend-paused"></span> <span style="color:#dac57c;vertical-align:super">@L("PAUSED")</span></div>
+                <div style="width:92px"><span class="legend-running"></span> <span style="color:#25b972;vertical-align:super">@L("OEE_ASSET_RUNNING") </span></div>
+                <div style="width:84px"><span class="legend-done"></span> <span style="color:#d1d1d1;vertical-align:super">@L("DONE")</span></div>
+
+
+            </div>
+            <div class="legend-lowres">
+                <img src="~/images/legend.svg" width="102" height="67" />
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <div class="panel-container" id="side-panel-bundling">
+        <div class="panel-header">
+            <div class="panel-banner">
+                <div class="text">@L("GROUPED_STEPS")</div>
+
+                <div class="buttons"><span class="close" title="@L("CLOSE")" onclick="closeGroupBundle();">×</span></div>
+
+
+
+            </div>
+            <br />
+            <div class="search">
+                <div style="padding-right:6px">
+                    <a href="#" onclick="AddGroupBundling()" class="btn arc-btn-icon button" data-toggle="tooltip" title="Add"><i class="fa fa-plus arc-fa-2x"></i></a> </div>
+                    <div style="width:95%;padding-left:6px" id="txt-search-bundle"></div>
+                </div>
+            </div>
+        <div id="bundlelist-content" class="jobstep-list-content">
+
+
+            <div class="bundling-list">
+
+
+            </div>
+
+
+        </div>
+    </div>
+
+    <div id="AddEditBundleGroupModal" class="modal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="container">
+
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 id="GroupBundleJobName" style="padding-top:15px">@L("GROUP_NAME")</h6>
+                                <h6 id="GroupBundleTotalRuntime" style="margin-top:28px">@L("TOTAL_RUNTIME")</h6>
+                            </div>
+                            <div class="col-sm-4">
+                                <div id="dx-txt-bundle-job-name"></div>
+                                <div id="dx-txt-bundle-runtime" style="margin-top:10px"></div>
+                            </div>
+
+                            <div style="width: 315px;">
+                                <div style="text-align:right;margin-top:-10px">
+
+                                    <button class="btn arc-btn-icon" id="btn-add-edit-bundle-ok" data-toggle="tooltip" title="@L("DONE")"><i class="fa fa-check arc-fa-2x"></i></button>
+                                    <menu class="btn arc-btn-icon-red button" data-toggle="tooltip" data-dismiss="modal" title="@L("CANCEL")">
+                                        <i class="fas fa-times-circle arc-fa-2x"></i>
+                                    </menu>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="w-100 spacer"></div>
+                        <p>@L("GROUP_JOB_LABEL")</p>
+
+                        <div class="row">
+
+                            <div id="dx-bundling-grid"></div>
+                        </div>
+                        <div class="w-100 spacer"></div>
+
+
+
+                        <div class="w-100 spacer"></div>
+                        <div class="w-100 spacer"></div>
+
+                    </div> <!--Edit Steps -->
+
+
+
+
+                </div>
+
+                <div class="modal-footer">
+
+                </div>
+
+
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <div class="panel-container" id="side-panel">
+        <div class="panel-header">
+            <div class="panel-banner">
+                <div class="text">@L("DRAG_JOBS_TO_SCHEDULE")</div>
+
+                <div class="buttons">
+                    <span class="close" title="@L("CLOSE")" onclick="closeNav();">×</span>
+
+                </div>
+            </div>
+
+            <div class="search">
+
+                <div id="txt-search-job"></div>
+                <div id="dx-search-step"></div>
+
+            </div>
+        </div>
+        <div id="list-content" class="jobstep-list-content">
+
+
+            <div class="job-list">
+
+
+            </div>
+
+
+        </div>
+
+    </div>
+    <div class="loadpanel"></div>
+    <div id="sched-container" style="overflow: hidden">
+        <div id="appointmentContextMenu"></div>
+        <div id="scheduler"></div>
+        <div style="display:flex;margin-top:-30px;margin-left:1px" id="capacity-container">
+            <button class="btn arc-btn-icon" id="btn-capacity" data-toggle="modal" data-target="#CapacityTrackingModal"><i class="fas  fa-plus arc-fa-2x"></i></button>
+            <p style="font-size:30px;color:gray;font-weight:400;margin-left:20px;margin-top: -6px">Capacity Tracking</p>
+        </div>
+        <!--Chart -->
+        <div id="stepChartContainer" style="overflow:scroll" onscroll="scrolling()"></div>
+    </div>
+
+
+    <div id="CapacityTrackingModal" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-content" style="width:700px">
+
+                <div class="modal-body">
+                    <div class="container">
+                        <ul class="nav nav-tabs arc-tab arc-tab-nav" id="myTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="btn arc-tab-pill active" data-toggle="tab" href="#itemtypes" id="itemtypes-tab" role="tab" aria-controls="itemtypes" aria-selected="true">@L("INVENTORY_TYPE_ITEM")</a>
+                            </li>
+                           
+                        </ul>
+                        <div class="tab-content arc-tab-content" id="myTabContent" role="tabpanel">
+                            <div class="tab-pane fade in active show" id="itemtypes">
+                                <div id="dx-ItemTypes"></div>
+                            </div>
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="summary"></div>
+
+
+    <div id="EditJobModal" class="modal" tabindex="-1">
+        <div class="modal-dialog" style="width:700px">
+            <div class="modal-content">
+
+
+
+                <div class="modal-body">
+                    <div class="container">
+
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <h4 id="JobNameModal" style="padding-top:15px">JobName</h4>
+                            </div>
+                            <div class="col-sm-4">
+                                <div style="text-align:right;margin-top:-10px">
+
+                                    <button class="btn arc-btn-icon" id="btn-edit-job-ok" data-toggle="tooltip" title="@L("DONE")"><i class="fa fa-check arc-fa-2x"></i></button>
+                                    <menu class="btn arc-btn-icon-red button" data-toggle="tooltip" data-dismiss="modal" title="@L("CANCEL")">
+                                        <i class="fas fa-times-circle arc-fa-2x"></i>
+                                    </menu>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="w-100 spacer"></div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <h6>@L("START_DATE")</h6>
+                                <div id="dx-StartDate"></div>
+                            </div>
+
+                            <div class="col">
+                                <h6>@L("END_DATE")</h6>
+                                <div id="dx-EndDate"></div>
+                            </div>
+                        </div>
+                        <div class="w-100 spacer"></div>
+
+
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <button id="btn-unschedule-job" type="button" class="btn arc-btn">
+                                    @L("UNSCHEDULE_CONTEXTMENU")
+                                </button>
+                            </div>
+                        </div>
+                        <div class="w-100 spacer"></div>
+                        <div class="w-100 spacer"></div>
+
+                    </div> <!--Edit Steps -->
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <button id="btn-edit-step" type="button" class="btn arc-btn">
+                                <i class="fas fa-pencil-alt"></i>  @L("EDIT_STEPS")
+                            </button>
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+                <div class="modal-footer">
+
+                </div>
+
+
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+    <div id="EditStepModal" class="modal" tabindex="-1">
+        <div class="modal-dialog" style="width:700px">
+            <div class="modal-content">
+
+
+
+                <div class="modal-body">
+                    <div class="container">
+
+
+
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <h3 id="StepNameModal" class="card-title" style="padding-top:15px;font-weight:600"></h3>
+                            </div>
+                            <div class="col-sm-4">
+                                <div style="text-align:right;margin-top:-10px">
+
+                                    <button class="btn arc-btn-icon" data-toggle="tooltip" id="btn-edit-step-ok" title="@L("DONE")"><i class="fa fa-check arc-fa-2x"></i></button>
+                                    <menu class="btn arc-btn-icon-red button" data-toggle="tooltip" data-dismiss="modal" title="@L("CANCEL")">
+                                        <i class="fas fa-times-circle arc-fa-2x"></i>
+                                    </menu>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="w-100 spacer"></div>
+                        <div class="row">
+                            <div class="col-sm-6" style="margin-left:6px">
+                                <!--style="margin-left:6px"-->
+                                <h6>@L("START_DATE")</h6>
+                                <div id="dx-StepStartDate"></div>
+                            </div>
+
+                            <div style="margin-top: 29px; margin-left: -10px">
+                                <i class="fas fa-lock" style="color:#37467B"></i>
+                                <div id="dx-checkBox"></div>
+                            </div>
+
+                            <div class="col-sm-5">
+                                <h6>@L("END_DATE")</h6>
+                                <div id="dx-StepEndDate"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+
+                            </div>
+
+
+
+                            <div class="col-sm-6" style="padding-top: 15px;padding-left: 45px;">
+                                <h6>@L("DURATION") (ddd:hh:mm)</h6>
+                                <div id="dx-txtDuration">  </div>
+                            </div>
+                        </div>
+                        <div class="w-100 spacer"></div>
+
+                        <div class="w-100 spacer"></div>
+
+
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h7 class="step-personnel">@L("ASSIGNED_PERSONNEL")</h7>
+
+                            </div>
+                            <div class="col-sm-12">
+
+                                <div id="dx-Personnel1"> </div>
+
+                            </div>
+                        </div>
+                        <div class="w-100 spacer"></div>
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h7 class="step-machine">@L("ASSIGNED_MACHINES")</h7>
+
+                            </div>
+                            <div class="col-sm-12">
+
+                                <div id="dx-Machine1"> </div>
+
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <br />
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <button id="btn-unschedule-step" type="button" class="btn arc-btn">
+                                @L("UNSCHEDULE_CONTEXTMENU")
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+                <div class="modal-footer">
+
+                </div>
+
+
+            </div>
+        </div>
+
+
+    </div>
+
+    <div id="EditStepsModal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" style="width:700px" role="document">
+            <div class="modal-content">
+
+
+
+                <div class="modal-body modal-body-steps">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <h4 style="padding-top:15px;font-weight:600;font-size:24px">@L("EDIT_STEPS")</h4>
+                            </div>
+                            <div class="col-sm-4">
+                                <div style="text-align:right;margin-top:6px">
+
+                                    <button href="#" class="btn arc-btn-icon" id="btn-edit-job-steps-ok" data-toggle="tooltip" title="@L("DONE")"><i class="fa fa-check arc-fa-2x"></i></button>
+                                    <button class="btn arc-btn-icon-red button" data-toggle="tooltip" data-dismiss="modal" title="@L("CANCEL")">
+                                        <i class="fas fa-times-circle arc-fa-2x"></i>
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="w-100 spacer"></div>
+                        <div class="w-100 spacer"></div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h6>@L("SEARCH_STEP")</h6>
+                                <div id="dx-SearchJobStep"></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-content-dialog">
+                    <div id="stepsContainer">
+
+
+
+                    </div>
+
+                </div>
+
+
+
+
+
+
+
+
+
+            </div>
+
+
+
+
+
+
+        </div>
+
+
+    </div>
+
+    <div class="modal" tabindex="-1" role="dialog" id="ScheduleConfirmModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@L("SCHEDULING_CONFIRMATION")</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="@L("CLOSE")">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="schedulePlanId" />
+                    <p><span id="suggested-schedule"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="confirmSchedule();">@L("PROCEED_TO_SCHEDULE")</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">@L("CANCEL")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" tabindex="-1" role="dialog" id="GroupBundleConfirmDeleteModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@L("INVENTORY_PERSONNEL_DELETE_CONFIRMATION_HEADER")</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="@L("CLOSE")">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <p><span>@L("ALERT_DELETE_TEXT")</span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="confirmDeleteBundle();">@L("ALERT_DELETE_CONFIRM_TEXT")</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">@L("CANCEL")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" tabindex="-1" role="dialog" id="TimeframeModal">
+        <div class="modal-dialog" role="document" style="height:300px;width:500px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@L("SETTINGS")</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="@L("CLOSE")">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table>
+                        <tr>
+                            <td>
+                                <div style="text-align:left">
+                                    <span class="time-interval">@L("INTERVAL_MINS")</span>
+                                    <div class="interval" id="dx-txt-interval"></div>
+
+                                    <span class="time-interval">@L("START_TIME")</span>
+                                    <div class="interval" id="dx-starttime-interval"></div>
+                                    <span class="time-interval">@L("END_TIME")</span>
+                                    <div class="interval" id="dx-endtime-interval"></div>
+                                </div>
+                            </td>
+                            <td style="width:230px">
+                                <div style="text-align:left;padding-left:20px">
+                                    <br />
+                                    <div id="dx-checkBox-lock-job-timeframe"></div>
+                                    <span style="font-size:12px">@L("LOCK_JOB_CHECKBOX_MSG")</span>
+
+                                    <br />
+                                    <span>@L("DURATION") (hh:mm)</span>
+                                    <div id="dx-txtDuration-fz">  </div>
+
+                                </div>
+
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <span class="time-interval">@L("SCHEDULING_MODE")</span>
+                                <div style="width:180px" ">
+                                    <div id="schedulingModeDropdown"></div>
+                                </div>
+                                <div style="width:250px;padding-top:10px">
+                                    <span id="lblBackward">@L("SCHEDULING_BACKWARDS")</span> <label class="switch-toggle">
+                                        <input type="checkbox" checked id="schedule-toggle">
+                                        <span class="slider-switch round"></span>
+                                    </label> <span id="lblForward">@L("SCHEDULING_FORWARDS")</span>
+                                </div>
+
+                            </td>
+
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <div style="text-align:right;margin-top:6px">
+                        <button href="#" class="btn arc-btn-icon" id="btn-set-timeframe" data-toggle="tooltip" title="@L("DONE")"><i class="fa fa-check arc-fa-2x"></i></button>
+                        <button class="btn arc-btn-icon-red button" data-toggle="tooltip" data-dismiss="modal" title="@L("CANCEL")">
+                            <i class="fas fa-times-circle arc-fa-2x"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+
+
+</div>
+
+    <script type="text/javascript" src="@Url.Content("~/js/global.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/js/scheduler.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/js/scheduler-init.js")"></script>
+
+
+
+    <script type="text/javascript" src="@Url.Content("~/js/signalr/client-app-events.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/js/signalr/signalr.js")"></script>
+
+
+
+    <script>
+
+
+        function scrolling() {
+
+            $(".dx-scrollable-container").scrollLeft($('#stepChartContainer').scrollLeft())
+            console.log("scroll chart");
+        }
+        function _PopulateBundlingCandidates() {
+
+            $.getJSON(urlWithAction + "/GetBundleCandidates", function (data) {
+
+                BundlingCandidates = data;
+
+                console.log("Bundling candidates: " + JSON.stringify(data));
+            });
+
+        }
+        function AddGroupBundling() {
+         
+            RefreshBundlingCandidates();
+            groupBundleGrid.refresh();
+
+            groupBundleGrid.clearFilter();
+            isAdd = true;
+            $("#dx-txt-bundle-runtime").dxTextBox("instance").option("value", "");
+            $("#dx-txt-bundle-job-name").dxTextBox("instance").option("value", "");
+            $("#dx-txt-bundle-job-name").dxTextBox("instance").option("isValid", true);
+            $("#dx-bundling-grid").dxDataGrid("instance").deselectAll();
+            $("#dx-txt-bundle-runtime").dxTextBox("instance").option("disabled", true);
+
+            $("#AddEditBundleGroupModal").modal('show');
+        }
+ 
+        function closeGroupBundle() {
+            btnBundlingState = false;
+            $("#side-panel-bundling").hide();
+        }
+
+        function closeNav() {
+            btnState = false;
+            $("#side-panel").hide();
+
+
+            $("#scheduler").toggleClass("removeLeftMargin");
+            $("#scheduler").removeClass("addLeftMargin")
+
+            const element = document.querySelector('.dx-scheduler-date-table');
+            const width = element.style.width;
+
+            $(".dx-scheduler-date-table-row").css("width", width);
+
+              
+            $("#scheduler").dxScheduler("instance").repaint();
+
+
+            $(".dx-scheduler-header").removeClass("fixed");
+
+        }
+        function confirmSchedule() {
+            let resourceRequest = {}
+
+            resourceRequest.SchedulePlanId = $("#schedulePlanId").val();
+            loadPanel.show();
+
+            $('#ScheduleConfirmModal').modal('hide');
+
+            $.ajax({
+                url: urlWithAction + "/ApproveSchedulePlan",
+                method: "POST",
+                data: resourceRequest
+            }).always(function () {
+
+                toasterAlert('success', ALTERNATIVE_DATES_SUCCESS_MESSAGE);
+
+
+
+                $("#scheduler").dxScheduler("getDataSource").reload();
+
+                $('#ScheduleConfirmModal').modal('hide');
+
+            }).fail(function (msg) {
+
+
+                console.log("APPROVE SCHEDULE PLAN ERROR: " + JSON.stringify(msg))
+
+                $('#ScheduleConfirmModal').modal('hide');
+            })
+        }
+
+        function confirmDeleteBundle() {
+
+
+            $('#GroupBundleConfirmDeleteModal').modal('hide');
+           
+
+            $.ajax({
+                url: urlWithAction + "/DeleteBundle",
+                method: "DELETE",
+               data: { "id": selectedBundlingId }
+            }).always(function (result) {
+
+
+                if (result.IsSuccess == false) {
+
+                    toasterAlert('error', result.Error);
+
+                    return;
+                }
+
+                toasterAlert('success', ALERT_DELETE_SUCCESS);
+
+                GroupBundling = [];
+
+                setTimeout(function () {
+
+                    $.getJSON(urlWithAction + "/GetGroupBundling", function (data) {
+
+                        GroupBundling = data;
+
+                        console.log("Group bundling: " + JSON.stringify(data));
+                    }).done(function (data) {
+
+                        PopulateBundlingGroup();
+                    });
+                }, 3000);
+    
+
+                $('#GroupBundleConfirmDeleteModal').modal('hide');
+
+            }).fail(function (msg) {
+
+ 
+
+                $('#GroupBundleConfirmDeleteModal').modal('hide');
+            })
+        }
+    </script>
